@@ -1,69 +1,29 @@
-import {Action} from '@ngrx/store';
-import {Course} from './model/course';
-import {Update} from '@ngrx/entity';
 
+import { createAction } from '@ngrx/store';
+import { Update } from '@ngrx/entity';
 
-export enum CourseActionTypes {
-  CourseRequested = '[View Course Page] Course Requested',
-  CourseLoaded = '[Courses API] Course Loaded',
-  AllCoursesRequested = '[Courses Home Page] All Courses Requested',
-  AllCoursesLoaded = '[Courses API] All Courses Loaded',
-  CourseSaved = '[Edit Course Dialog] Course Saved'
-}
+import { Course } from './model/course';
 
+export const courseRequested = createAction(
+  '[View Course Page] Course Requested',
+  (courseId: number) => ({ courseId })
+);
 
-export class CourseRequested implements Action {
+export const courseLoaded = createAction(
+  '[Courses API] Course Loaded',
+  (course: Course) => ({ course })
+);
 
-  readonly type = CourseActionTypes.CourseRequested;
+export const allCoursesRequested = createAction(
+  '[Courses Home Page] All Courses Requested'
+);
 
-  constructor(public payload: { courseId: number }) {
+export const allCoursesLoaded = createAction(
+  '[Courses API] All Courses Loaded',
+  (courses: Course[]) => ({ courses })
+);
 
-  }
-}
-
-
-export class CourseLoaded implements Action {
-
-  readonly type = CourseActionTypes.CourseLoaded;
-
-  constructor(public payload: { course: Course }) {
-  }
-}
-
-
-export class AllCoursesRequested implements Action {
-
-  readonly type = CourseActionTypes.AllCoursesRequested;
-
-}
-
-export class AllCoursesLoaded implements Action {
-
-  readonly type = CourseActionTypes.AllCoursesLoaded;
-
-  constructor(public payload: { courses: Course[] }) {
-
-  }
-
-}
-
-export class CourseSaved implements Action {
-
-  readonly type = CourseActionTypes.CourseSaved;
-
-  constructor(public payload: { course: Update<Course> }) {}
-}
-
-
-
-
-export type CourseActions =
-  CourseRequested
-  | CourseLoaded
-  | AllCoursesRequested
-  | AllCoursesLoaded
-  | CourseSaved;
-
-
-
-
+export const courseSaved = createAction(
+  '[Edit Course Dialog] Course Saved',
+  (course: Update<Course>) => ({ course })
+);
