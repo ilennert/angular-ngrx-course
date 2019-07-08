@@ -1,47 +1,46 @@
+
 import {Injectable} from '@angular/core';
-import {Actions, Effect, ofType} from '@ngrx/effects';
-import {AllCoursesLoaded, AllCoursesRequested, CourseActionTypes, CourseLoaded, CourseRequested} from './course.actions';
 import {throwError} from 'rxjs';
-import {catchError, concatMap, exhaustMap, filter, map, mergeMap, withLatestFrom} from "rxjs/operators";
+import {catchError, concatMap, exhaustMap, filter, map, mergeMap, withLatestFrom} from 'rxjs/operators';
+import {select, Store} from '@ngrx/store';
+import {Actions, ofType, createEffect} from '@ngrx/effects';
+
+import * as CourseActions from './course.actions';
 import {CoursesService} from './services/courses.service';
 import {AppState} from '../reducers';
-import {select, Store} from '@ngrx/store';
 import {allCoursesLoaded} from './course.selectors';
 
 @Injectable()
 export class CourseEffects {
 
-  @Effect()
-  loadCourse$ = this.actions$
-    .pipe(
-      ofType<CourseRequested>(CourseActionTypes.CourseRequested),
-      mergeMap(action => this.coursesService.findCourseById(action.payload.courseId)),
-      map(course => new CourseLoaded({course})),
+  loadCourse$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CourseActions.courseRequested),
+      mergeMap(action => this.coursesService.findCourseById(action.courseId)),
+      map(course => CourseActions.courseLoaded(course)),
       catchError(err => {
         console.log('error loading course ', err);
         return throwError(err);
       })
-
+    )
   );
 
-  @Effect()
-  loadAllCourses$ = this.actions$
-    .pipe(
-      ofType<AllCoursesRequested>(CourseActionTypes.AllCoursesRequested),
+  loadAllCourses$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CourseActions.allCoursesRequested),
       withLatestFrom(this.store.pipe(select(allCoursesLoaded))),
-      filter(([action, allCoursesLoaded]) => !allCoursesLoaded),
+      filter(([action, coursesLoaded]) => !coursesLoaded),
       mergeMap(() => this.coursesService.findAllCourses()),
-      map(courses => new AllCoursesLoaded({courses})),
+      map(courses => CourseActions.allCoursesLoaded(courses)),
       catchError(err => {
         console.log('error loading all courses ', err);
         return throwError(err);
       })
-    );
+    )
+  );
 
-
-  constructor(private actions$ :Actions, private coursesService: CoursesService,
+  constructor(private actions$: Actions, private coursesService: CoursesService,
               private store: Store<AppState>) {
-
   }
 
 }
